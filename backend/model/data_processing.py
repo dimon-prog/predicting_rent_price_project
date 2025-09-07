@@ -1,7 +1,8 @@
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+from sklearn.model_selection import train_test_split
 import re
+from sklearn.preprocessing import StandardScaler
+
 df = pd.read_csv("data/vienna_apartments.csv")
 vienna_district_map_numeric = {
     '1010': '01',
@@ -34,14 +35,20 @@ df.dropna(subset=["rooms"], inplace=True)
 df = df[df["price"] >= 400]
 df = df[df["price"] <= 5000]
 df["district"] = df["address"].apply(
-            lambda x: vienna_district_map_numeric[str(re.search(r"\d{4}", x).group(0))] if re.search(r"\d{4}", x) else 0)
+    lambda x: vienna_district_map_numeric[str(re.search(r"\d{4}", x).group(0))] if re.search(r"\d{4}", x) else 0)
 df = df.drop("address", axis=1)
-plt.figure(figsize=(10, 6))
-district_counts = df['district'].value_counts()
-#sns.histplot(df["district"], bins=50, kde=True)
-sns.barplot(x=district_counts.index, y=district_counts.values, palette="viridis")
-plt.xlabel("district")
-plt.ylabel("quantity")
-#plt.show()
+df = df.drop("id", axis=1)
+df= pd.get_dummies(df, columns=["district"], prefix="district", drop_first=True)
+bool_columns = df.select_dtypes(include=["bool"]).columns
+df[bool_columns] = df[bool_columns].astype(int)
+df["price"] = df["price"].astype(float)
+df["area_sqm"] = df["area_sqm"].astype(float)
+Y = df["price"]
+df = df.drop("price", axis=1)
+X = df
 
-print(df.iloc[1])
+X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
+scaler = StandardScaler()
+
+X_train_scaled = scaler.fit_transform(X_train)
+X_test_scaled = scaler.transform(X_test)
