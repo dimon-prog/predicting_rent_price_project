@@ -8,11 +8,19 @@ from sklearn.preprocessing import StandardScaler
 import joblib
 import matplotlib.pyplot as plt
 
-scaler = StandardScaler()
-X_train = scaler.fit_transform(X_train)
-X_test = scaler.transform(X_test)
-joblib.dump(scaler, "scaler.pkl")
+print(X_train.iloc[0])
+#print(y_train)
+scaler_X = StandardScaler()
+X_train = scaler_X.fit_transform(X_train)
+X_test = scaler_X.transform(X_test)
 
+joblib.dump(scaler_X, "scaler_X.pkl")
+
+scaler_Y = StandardScaler()
+y_train = scaler_Y.fit_transform(y_train.values.reshape(-1, 1))
+y_test = scaler_Y.transform(y_test.values.reshape(-1, 1))
+
+joblib.dump(scaler_Y, "scaler_Y.pkl")
 
 train_dataset = CustomDataset(X_train, y_train)
 test_dataset = CustomDataset(X_test, y_test)
@@ -22,12 +30,11 @@ test_loader = DataLoader(dataset=test_dataset, batch_size=32, shuffle=True, num_
 
 model = PricePredictor(X_train.shape[1])
 loss_func = nn.MSELoss()
-optimizer = torch.optim.Adam(model.parameters(), lr=0.01)
+optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
 
-epochs = 20
+epochs = 50
 train_losses = []
 val_losses = []
-
 
 for epoch in range(epochs):
     print(epoch)
@@ -41,8 +48,6 @@ for epoch in range(epochs):
         loss.backward()
         optimizer.step()
 
-
-
     model.eval()
     val_loss = 0.0
     with torch.no_grad():
@@ -51,12 +56,16 @@ for epoch in range(epochs):
             loss = loss_func(y_pred, batch_labes)
             val_loss += loss.item() * batch_features.size(0)
 
-    avg_train_loss = train_loss / len(train_loader)
-    avg_val_loss = val_loss / len(test_loader)
+    avg_train_loss = train_loss / len(train_loader.dataset)
+    avg_val_loss = val_loss / len(test_loader.dataset)
 
+    print(f"epoch {epoch}, traing_loss - {avg_train_loss}")
+    print(f"epoch {epoch}, validation_loss - {avg_val_loss}")
     train_losses.append(avg_train_loss)
     val_losses.append(avg_val_loss)
 
+print(train_losses[-1])
+print(val_losses[-1])
 
 plt.plot(train_losses, label="Training Loss")
 plt.plot(val_losses, label="Validation Loss")
