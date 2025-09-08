@@ -1,7 +1,8 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import re
-from sklearn.preprocessing import StandardScaler
+
+
 
 df = pd.read_csv("data/vienna_apartments.csv")
 vienna_district_map_numeric = {
@@ -38,7 +39,7 @@ df["district"] = df["address"].apply(
     lambda x: vienna_district_map_numeric[str(re.search(r"\d{4}", x).group(0))] if re.search(r"\d{4}", x) else 0)
 df = df.drop("address", axis=1)
 df = df.drop("id", axis=1)
-df= pd.get_dummies(df, columns=["district"], prefix="district", drop_first=True)
+df = pd.get_dummies(df, columns=["district"], prefix="district", drop_first=True)
 bool_columns = df.select_dtypes(include=["bool"]).columns
 df[bool_columns] = df[bool_columns].astype(int)
 df["price"] = df["price"].astype(float)
@@ -48,7 +49,6 @@ df = df.drop("price", axis=1)
 X = df
 
 X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
-scaler = StandardScaler()
 
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
+
+

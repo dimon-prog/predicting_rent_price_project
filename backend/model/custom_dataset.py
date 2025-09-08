@@ -4,8 +4,8 @@ from torch.utils.data import Dataset
 
 class CustomDataset(Dataset):
     def __init__(self, features, labels):
-        self.features = torch.tensor(features)
-        self.labels = torch.tensor(labels)
+        self.features = torch.tensor(features, dtype=torch.float32)
+        self.labels = torch.tensor(labels.to_numpy(), dtype=torch.float32)
 
     def __len__(self):
         return len(self.labels)
