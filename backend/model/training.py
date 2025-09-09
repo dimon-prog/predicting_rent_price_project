@@ -75,4 +75,4 @@ plt.title("Loss Per Epoch")
 plt.legend()
 plt.show()
 
-torch.save(model, "model.pkl")
+torch.save(model.state_dict(), "model.pth")
