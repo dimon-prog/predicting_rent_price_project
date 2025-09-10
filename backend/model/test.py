@@ -3,6 +3,7 @@ import httpx
 import pandas as pd
 import json
 from typing import List, Dict, Any
+import re
 
 BASE_URL = "https://www.immobilienscout24.at/portal/graphql"
 
@@ -11,33 +12,37 @@ def parse_graphql_data(json_response: Dict[str, Any]) -> List[Dict[str, Any]]:
 
     parsed_items = []
 
-    try:
-        hits = json_response['data']['findPropertiesByParams']['hits']
-    except (KeyError, TypeError):
-        print("Не удалось найти 'hits' в ответе. Ответ:")
-        print(json_response)
-        return []
+
+    hits = json_response['data']['findPropertiesByParams']['hits']
     print(hits)
     for item in hits:
+        badges = item.get('badges', [])
+        address = item.get('addressString', '')
+        badge_values = {badge['value'] for badge in badges if 'value' in badge}
+        badge_labels = {badge['label'].lower() for badge in badges if 'label' in badge and badge['label']}
         parsed_items.append({
             'id': item.get('exposeId'),
-            'headline': item.get('headline'),
-            'address': item.get('addressString'),
-            'price_eur': item.get('primaryPrice'),
+            'address': address,
+            'price': item.get('primaryPrice'),
             'area_sqm': item.get('primaryArea'),
             'rooms': item.get('numberOfRooms'),
-            'company': item.get('realtorContact', {}).get('company'),
-            'url': "https://www.immobilienscout24.at" + item.get('links', {}).get('targetURL', ''),
-        })
+            'is_new_building': 1 if 'neubauprojekt' in badge_labels else 0,
+            "has_balcony": 1 if 'BALCONY' in badge_values else 0,
+            "no_commission": 1 if 'FREE_OF_COMMISSION' in badge_values else 0,
+            "has_terrace": 1 if 'TERRACE' in badge_values else 0,
+            "is_furnished": 1 if 'FURNISHED_FULL' in badge_values else 0,
+            "is_social_housing": 1 if item.get('isSocialHousing') else 0,
+            "district": re.search(r"\d{4}", item.get("addressString")).group(0)})
+
     return parsed_items
 
 
 async def main():
     all_results = []
-    total_pages_to_scrape = 1  # Сколько страниц парсим
-    results_per_page = 20  # Сколько объявлений на странице (проверьте в URL или на сайте)
+    total_pages_to_scrape = 200
+    results_per_page = 20
 
-    # Статические части нашего запроса, они не меняются
+
     operation_name = "findPropertiesByParams"
     extensions = {
         "persistedQuery": {
@@ -50,22 +55,21 @@ async def main():
         for page_num in range(1, total_pages_to_scrape + 1):
             print(f"Запрашиваем страницу {page_num}...")
 
-            # Динамически формируем 'variables' для каждой страницы
+
             variables = {
                 "aspectRatio": 1.77,
                 "params": {
                     "countryCode": "AT",
                     "estateType": "APARTMENT",
-                    "from": str((page_num - 1) * results_per_page),  # Рассчитываем смещение
-                    "region": "009001",  # Код региона для Вены, похоже
-                    "size": str(results_per_page),  # Количество результатов
+                    "from": str((page_num - 1) * results_per_page),
+                    "region": "009001",
+                    "size": str(results_per_page),
                     "transferType": "RENT",
                     "useType": "RESIDENTIAL"
                 }
             }
 
-            # Собираем все параметры для GET-запроса
-            # Важно: словари variables и extensions нужно преобразовать в строку JSON
+
             params = {
                 "operationName": operation_name,
                 "variables": json.dumps(variables, separators=(',', ':')),
@@ -80,11 +84,11 @@ async def main():
                 parsed = parse_graphql_data(data)
                 if not parsed:
                     print(f"На странице {page_num} не найдено объявлений. Возможно, это последняя страница.")
-                    break  # Прерываем цикл, если данных больше нет
+                    break
 
                 all_results.extend(parsed)
                 print(f" -> Добавлено {len(parsed)} объявлений.")
-                await asyncio.sleep(0.5)  # Небольшая пауза из вежливости
+                await asyncio.sleep(0.5)
 
             except httpx.RequestError as e:
                 print(f"Ошибка при запросе страницы {page_num}: {e}")
@@ -100,9 +104,9 @@ async def main():
     print(f"\nВсего собрано {len(all_results)} объявлений.")
 
     df = pd.DataFrame(all_results)
-    df.to_csv('immoscout_graphql_listings.csv', index=False, encoding='utf-8-sig')
+    df.to_csv('vienna_apartments.csv', index=False, encoding='utf-8-sig')
 
-    print("\nDataFrame успешно создан и сохранен в 'immoscout_graphql_listings.csv'")
+    print("\nDataFrame успешно создан и сохранен в 'vienna_apartments.csv'")
     print(df.head())
 
 

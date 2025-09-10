@@ -5,6 +5,7 @@ import re
 
 
 df = pd.read_csv("data/vienna_apartments.csv")
+
 vienna_district_map_numeric = {
     '1010': '01',
     '1020': '02',
@@ -38,14 +39,16 @@ df = df[df["price"] <= 5000]
 df["district"] = df["address"].apply(
     lambda x: vienna_district_map_numeric[str(re.search(r"\d{4}", x).group(0))] if re.search(r"\d{4}", x) else 0)
 df = df.drop("address", axis=1)
+df["price_per_qm"] = df["price"] / df["area_sqm"]
 df = df.drop("id", axis=1)
+df = df.drop("price", axis=1)
 df = pd.get_dummies(df, columns=["district"], prefix="district", drop_first=True)
 bool_columns = df.select_dtypes(include=["bool"]).columns
 df[bool_columns] = df[bool_columns].astype(int)
-df["price"] = df["price"].astype(float)
-df["area_sqm"] = df["area_sqm"].astype(float)
-Y = df["price"]
-df = df.drop("price", axis=1)
+df["price_per_qm"] = df["price_per_qm"].astype(float)
+
+Y = df["price_per_qm"]
+df = df.drop("price_per_qm", axis=1)
 X = df
 
 X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
