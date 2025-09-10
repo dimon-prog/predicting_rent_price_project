@@ -14,13 +14,13 @@ scaler_X = StandardScaler()
 X_train = scaler_X.fit_transform(X_train)
 X_test = scaler_X.transform(X_test)
 
-joblib.dump(scaler_X, "scaler_X.pkl")
+joblib.dump(scaler_X, "data/scaler_X.pkl")
 
 scaler_Y = StandardScaler()
 y_train = scaler_Y.fit_transform(y_train.values.reshape(-1, 1))
 y_test = scaler_Y.transform(y_test.values.reshape(-1, 1))
 
-joblib.dump(scaler_Y, "scaler_Y.pkl")
+joblib.dump(scaler_Y, "data/scaler_Y.pkl")
 
 train_dataset = CustomDataset(X_train, y_train)
 test_dataset = CustomDataset(X_test, y_test)
@@ -34,7 +34,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
 
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=10)
 
-epochs = 100
+epochs = 200
 train_losses = []
 val_losses = []
 
@@ -42,7 +42,7 @@ val_losses = []
 for epoch in range(epochs):
     all_preds = []
     all_prices = []
-
+    real_error_all = []
     price_real = []
     price_pred = []
 
@@ -69,6 +69,7 @@ for epoch in range(epochs):
             all_prices.append(batch_labes)
             price_real.append(scaler_Y.inverse_transform(batch_labes))
             price_pred.append(scaler_Y.inverse_transform(y_pred))
+            real_error_all.append((scaler_Y.inverse_transform(batch_labes)[0][0], abs(scaler_Y.inverse_transform(batch_labes)[0][0] - scaler_Y.inverse_transform(y_pred)[0][0])))
 
 
     avg_train_loss = train_loss / len(train_loader.dataset)
@@ -93,10 +94,14 @@ for epoch in range(epochs):
     #mse_error = mean_squared_error(real_reals, real_preds)
     #rmse_error = math.sqrt(mse_error)
 
-    for i in range(5):
-        print(f"real-{price_real[i][0][0]}, pred-{price_pred[i][0][0]}")
+    #for i in range(5):
+     #   print(f"real-{price_real[i][0][0]}, pred-{price_pred[i][0][0]}")
+
     #print(f"r2_error-{final_r2}")
     #print(f"rmse_error-{rmse_error}")
+#print(real_error_all)
+#real_error_all.sort(key=lambda x:x[1])
+#print(real_error_all[-5:])
 
 plt.plot(train_losses, label="Training Loss")
 plt.plot(val_losses, label="Validation Loss")
@@ -106,4 +111,4 @@ plt.title("Loss Per Epoch")
 plt.legend()
 plt.show()
 
-torch.save(model.state_dict(), "model.pth")
+torch.save(model.state_dict(), "data/model.pth")

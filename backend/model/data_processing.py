@@ -31,6 +31,9 @@ vienna_district_map_numeric = {
     '1220': '22',
     '1230': '23'
 }
+
+df = df.drop_duplicates().reset_index(drop=True)
+
 df.dropna(subset=["price"], inplace=True)
 df.dropna(subset=["area_sqm"], inplace=True)
 df.dropna(subset=["rooms"], inplace=True)

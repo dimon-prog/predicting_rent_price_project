@@ -14,3 +14,9 @@
 epoch 99, traing_loss - 0.180002302960916
 epoch 99, validation_loss - 0.15856772903251562
 
+traing_loss - 0.1578010200641372
+epoch 199, validation_loss - 0.149556302230555
+
+
+epoch 199, traing_loss - 0.1522904679721052
+epoch 199, validation_loss - 0.14885520515878922

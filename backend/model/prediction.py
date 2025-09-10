@@ -22,15 +22,15 @@ new_apartment_dict = {
 }
 dataset_pred = pd.DataFrame(new_apartment_dict)
 
-scaler_X = joblib.load("scaler_X_2.pkl")
-scaler_Y = joblib.load("scaler_Y_2.pkl")
+scaler_X = joblib.load("data/scaler_X_2.pkl")
+scaler_Y = joblib.load("data/scaler_Y_2.pkl")
 
 X_input = scaler_X.transform(dataset_pred)
 X_input = torch.tensor(X_input, dtype=float32)
 
 input_features = scaler_X.n_features_in_
 model = PricePredictor(input_features)
-model.load_state_dict(torch.load("model_2.pth"))
+model.load_state_dict(torch.load("data/model_2.pth"))
 
 model.eval()
 
