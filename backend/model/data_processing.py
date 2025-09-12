@@ -1,7 +1,7 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 import re
-
+import numpy as np
 
 
 df = pd.read_csv("data/vienna_apartments.csv")
@@ -37,21 +37,22 @@ df = df.drop_duplicates().reset_index(drop=True)
 df.dropna(subset=["price"], inplace=True)
 df.dropna(subset=["area_sqm"], inplace=True)
 df.dropna(subset=["rooms"], inplace=True)
+df.dropna(subset=["no_commission"], inplace=True)
 df = df[df["price"] >= 400]
 df = df[df["price"] <= 5000]
 df["district"] = df["address"].apply(
     lambda x: vienna_district_map_numeric[str(re.search(r"\d{4}", x).group(0))] if re.search(r"\d{4}", x) else 0)
 df = df.drop("address", axis=1)
-df["price_per_qm"] = df["price"] / df["area_sqm"]
+df["price"] = np.log(df["price"])
+
 df = df.drop("id", axis=1)
-df = df.drop("price", axis=1)
+df = df.drop("no_commission", axis=1)
 df = pd.get_dummies(df, columns=["district"], prefix="district", drop_first=True)
 bool_columns = df.select_dtypes(include=["bool"]).columns
 df[bool_columns] = df[bool_columns].astype(int)
-df["price_per_qm"] = df["price_per_qm"].astype(float)
 
-Y = df["price_per_qm"]
-df = df.drop("price_per_qm", axis=1)
+Y = df["price"]
+df = df.drop("price", axis=1)
 X = df
 
 X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.2, random_state=42)

@@ -39,7 +39,7 @@ def parse_graphql_data(json_response: Dict[str, Any]) -> List[Dict[str, Any]]:
 
 async def main():
     all_results = []
-    total_pages_to_scrape = 200
+    total_pages_to_scrape = 1
     results_per_page = 20
 
 

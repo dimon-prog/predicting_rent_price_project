@@ -9,6 +9,10 @@ import joblib
 import matplotlib.pyplot as plt
 from sklearn.metrics import mean_squared_error, r2_score, mean_absolute_error
 import math
+import numpy as np
+
+#print(X_train)
+#print(y_train)
 
 scaler_X = StandardScaler()
 X_train = scaler_X.fit_transform(X_train)
@@ -34,7 +38,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=1e-4)
 
 scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, factor=0.5, patience=10)
 
-epochs = 200
+epochs = 50
 train_losses = []
 val_losses = []
 
@@ -69,7 +73,7 @@ for epoch in range(epochs):
             all_prices.append(batch_labes)
             price_real.append(scaler_Y.inverse_transform(batch_labes))
             price_pred.append(scaler_Y.inverse_transform(y_pred))
-            real_error_all.append((scaler_Y.inverse_transform(batch_labes)[0][0], abs(scaler_Y.inverse_transform(batch_labes)[0][0] - scaler_Y.inverse_transform(y_pred)[0][0])))
+            #real_error_all.append((scaler_Y.inverse_transform(batch_labes)[0][0], abs(scaler_Y.inverse_transform(batch_labes)[0][0] - scaler_Y.inverse_transform(y_pred)[0][0])))
 
 
     avg_train_loss = train_loss / len(train_loader.dataset)
@@ -94,8 +98,8 @@ for epoch in range(epochs):
     #mse_error = mean_squared_error(real_reals, real_preds)
     #rmse_error = math.sqrt(mse_error)
 
-    #for i in range(5):
-     #   print(f"real-{price_real[i][0][0]}, pred-{price_pred[i][0][0]}")
+    for i in range(5):
+     print(f"real-{np.exp(price_real[i][0][0])}, pred-{np.exp(price_pred[i][0][0])}")
 
     #print(f"r2_error-{final_r2}")
     #print(f"rmse_error-{rmse_error}")
