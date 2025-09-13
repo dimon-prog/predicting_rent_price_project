@@ -44,13 +44,12 @@ df["district"] = df["address"].apply(
     lambda x: vienna_district_map_numeric[str(re.search(r"\d{4}", x).group(0))] if re.search(r"\d{4}", x) else 0)
 df = df.drop("address", axis=1)
 df["price"] = np.log(df["price"])
-
+df = df.drop("is_new_building", axis=1)
 df = df.drop("id", axis=1)
 df = df.drop("no_commission", axis=1)
 df = pd.get_dummies(df, columns=["district"], prefix="district", drop_first=True)
 bool_columns = df.select_dtypes(include=["bool"]).columns
 df[bool_columns] = df[bool_columns].astype(int)
-
 Y = df["price"]
 df = df.drop("price", axis=1)
 X = df

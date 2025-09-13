@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Предсказание вида Ириса</title>
+    <!-- Подключаем наш файл со стилями -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        <h1>Классификатор Ирисов</h1>
+        <form id="prediction-form">
+            <!-- ... (все ваши form-group с полями ввода остаются здесь без изменений) ... -->
+            <div class="form-group">
+                <label for="sepal_length">Длина чашелистика (см):</label>
+                <input type="number" id="sepal_length" step="0.1" value="5.1" required>
+            </div>
+            <div class="form-group">
+                <label for="sepal_width">Ширина чашелистика (см):</label>
+                <input type="number" id="sepal_width" step="0.1" value="3.5" required>
+            </div>
+            <div class="form-group">
+                <label for="petal_length">Длина лепестка (см):</label>
+                <input type="number" id="petal_length" step="0.1" value="1.4" required>
+            </div>
+            <div class="form-group">
+                <label for="petal_width">Ширина лепестка (см):</label>
+                <input type="number" id="petal_width" step="0.1" value="0.2" required>
+            </div>
+            <button type="submit">Предсказать вид</button>
+        </form>
+
+        <div id="result-container">
+            Предсказанный вид: <span id="prediction-result">...</span>
+        </div>
+    </div>
+
+    <!-- Подключаем наш файл со скриптами. Важно делать это в конце body! -->
+    <script src="script.js"></script>
+
+</body>
+</html>
