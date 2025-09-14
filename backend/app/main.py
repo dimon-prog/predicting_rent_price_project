@@ -1,14 +1,24 @@
 from fastapi import FastAPI
 import joblib
-from pandas.core.arrays.masked import transpose_homogeneous_masked_arrays
 from pydantic import BaseModel, Field
 import pandas as pd
 import torch
 from backend.model.model import PricePredictor
 from fastapi.staticfiles import StaticFiles
+from torch import float32
+import numpy as np
+
+scaler_X = joblib.load("data/scaler_X.pkl")
+scaler_Y = joblib.load("data/scaler_Y.pkl")
+
+
+input_features = scaler_X.n_features_in_
+model = PricePredictor(input_features)
+model.load_state_dict(torch.load("data/model.pth"))
+model.eval()
 
 app = FastAPI()
-app.mount("/", StaticFiles(directory="frontend", html=True), name="static")
+
 
 class RentalData(BaseModel):
     area_sqm: float = Field(..., examples=[50.0], description="Area in square meters")
@@ -17,12 +27,33 @@ class RentalData(BaseModel):
     has_terrace: bool = Field(..., examples=[False], description="has a apartment a terrace")
     is_furnished: bool = Field(..., examples=[False], description="has the furniture")
     is_social_housing: bool = Field(..., examples=[False], description="is a social house")
-    number_of_district: int = Field(..., ge=1, le=23, examples=[10], description="district of the house")
+    district: int = Field(..., ge=1, le=23, examples=[10], description="district of the house")
 
 
 @app.post("/predict")
-async def root(data: RentalData):
-    # model = PricePredictor(data)
-    # model.load_state_dict(torch.load("model.pth"))
-    print(data)
-    return {"message": "data"}
+def predict_price(data: RentalData):
+    new_apartment_dict = {
+        'area_sqm': [data.area_sqm],
+        'rooms': [float(data.rooms)],
+        'has_balcony': [data.has_balcony],
+        'has_terrace': [data.has_terrace],
+        "is_furnished": [data.is_furnished],
+        "is_social_housing": [data.is_social_housing],
+    }
+    for i in range(2, 24):
+        if i < 10:
+            new_apartment_dict[f"district_0{i}"] = [1.0] if data.district == i else [0.0]
+        else:
+            new_apartment_dict[f"district_{i}"] = [1.0] if data.district == i else [0.0]
+
+    dataset_pred = pd.DataFrame(new_apartment_dict)
+    x_input = scaler_X.transform(dataset_pred)
+    x_input = torch.tensor(x_input, dtype=float32)
+    with torch.no_grad():
+        scaled_prediction = model(x_input)
+
+    real_price = scaler_Y.inverse_transform(scaled_prediction.numpy())
+    return {"message": "POST with data successful!", "received": round(np.exp(real_price[0][0]))}
+
+
+app.mount("/", StaticFiles(directory="frontend", html=True), name="static")

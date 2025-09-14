@@ -1,7 +1,7 @@
 import torch
 import pandas as pd
 import joblib
-from model import PricePredictor
+from backend.model.model import PricePredictor
 from torch import float32
 import numpy as np
 
@@ -9,10 +9,10 @@ import numpy as np
 new_apartment_dict = {
     'area_sqm': [50.0],
     'rooms': [1.0],
-    'has_balcony': [0.0],
-    'has_terrace': [0.0],
-    "is_furnished": [0.0],
-    "is_social_housing": [1.0],
+    'has_balcony': [True],
+    'has_terrace': [False],
+    "is_furnished": [True],
+    "is_social_housing": [False],
     'district_02': [0.0], 'district_03': [1.0], 'district_04': [0.0],
     'district_05': [0.0], 'district_06': [0.0], 'district_07': [0.0],
     'district_08': [0.0], 'district_09': [0.0], 'district_10': [1.0],

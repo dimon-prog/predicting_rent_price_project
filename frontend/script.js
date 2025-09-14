@@ -25,7 +25,7 @@ form.addEventListener('submit', function(event) {
     // Собираем данные из формы в простом, человеческом формате
     const formData = {
         area_sqm: parseFloat(document.getElementById('area_sqm').value),
-        rooms: parseInt(document.getElementById('rooms').value),
+        rooms: parseFloat(document.getElementById('rooms').value),
         district: parseInt(document.getElementById('district').value),
         has_balcony: document.getElementById('has_balcony').checked, // .checked возвращает true/false
         has_terrace: document.getElementById('has_terrace').checked,
