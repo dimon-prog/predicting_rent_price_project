@@ -1,9 +1,6 @@
-// script.js
-
-// --- Первоначальная настройка страницы ---
 document.addEventListener('DOMContentLoaded', function() {
     const districtSelect = document.getElementById('district');
-    // Динамически создаем опции для выпадающего списка районов
+
     for (let i = 2; i <= 23; i++) {
         const option = document.createElement('option');
         const districtNumber = i.toString().padStart(2, '0'); // 2 -> "02"
@@ -11,18 +8,18 @@ document.addEventListener('DOMContentLoaded', function() {
         option.textContent = `district ${districtNumber}`;
         districtSelect.appendChild(option);
     }
-    // Устанавливаем значение по умолчанию
+
     districtSelect.value = 10;
 });
 
-// --- Обработка отправки формы ---
+
 const form = document.getElementById('prediction-form');
 const resultSpan = document.getElementById('prediction-result');
 
 form.addEventListener('submit', function(event) {
     event.preventDefault();
 
-    // Собираем данные из формы в простом, человеческом формате
+
     const formData = {
         area_sqm: parseFloat(document.getElementById('area_sqm').value),
         rooms: parseFloat(document.getElementById('rooms').value),
@@ -35,7 +32,6 @@ form.addEventListener('submit', function(event) {
 
     const apiUrl = 'http://127.0.0.1:8000/predict';
 
-    // Отправляем данные на сервер
     fetch(apiUrl, {
         method: 'POST',
         headers: {
@@ -52,7 +48,7 @@ form.addEventListener('submit', function(event) {
             resultSpan.textContent = data.predicted_rent_price;
             resultSpan.classList.remove('error');
         } else {
-            // Если сервер вернул ошибку, например, "модель не найдена"
+
             throw new Error(data.error || 'Неизвестная ошибка ответа');
         }
     })

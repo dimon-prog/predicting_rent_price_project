@@ -8,13 +8,13 @@ from fastapi.staticfiles import StaticFiles
 from torch import float32
 import numpy as np
 
-scaler_X = joblib.load("data/scaler_X.pkl")
-scaler_Y = joblib.load("data/scaler_Y.pkl")
+scaler_X = joblib.load("backend/model/data/scaler_X.pkl")
+scaler_Y = joblib.load("backend/model/data/scaler_Y.pkl")
 
 
 input_features = scaler_X.n_features_in_
 model = PricePredictor(input_features)
-model.load_state_dict(torch.load("data/model.pth"))
+model.load_state_dict(torch.load("backend/model/data/model.pth"))
 model.eval()
 
 app = FastAPI()
@@ -53,7 +53,7 @@ def predict_price(data: RentalData):
         scaled_prediction = model(x_input)
 
     real_price = scaler_Y.inverse_transform(scaled_prediction.numpy())
-    return {"message": "POST with data successful!", "received": round(np.exp(real_price[0][0]))}
+    return {"predicted_rent_price": round(np.exp(real_price[0][0]))}
 
 
 app.mount("/", StaticFiles(directory="frontend", html=True), name="static")
