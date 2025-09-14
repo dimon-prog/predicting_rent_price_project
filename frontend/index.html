@@ -1,44 +1,49 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Предсказание вида Ириса</title>
-    <!-- Подключаем наш файл со стилями -->
+    <title>Rent Price Prediction</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
     <div class="container">
-        <h1>Классификатор Ирисов</h1>
+        <h1>Rent Price Estimator Vienna</h1>
         <form id="prediction-form">
-            <!-- ... (все ваши form-group с полями ввода остаются здесь без изменений) ... -->
+
             <div class="form-group">
-                <label for="sepal_length">Длина чашелистика (см):</label>
-                <input type="number" id="sepal_length" step="0.1" value="5.1" required>
+                <label for="area_sqm">Area (m²):</label>
+                <input type="number" id="area_sqm" step="1" value="50" required>
             </div>
+
             <div class="form-group">
-                <label for="sepal_width">Ширина чашелистика (см):</label>
-                <input type="number" id="sepal_width" step="0.1" value="3.5" required>
+                <label for="rooms">Number of Rooms:</label>
+                <input type="number" id="rooms" step="1" value="2" required>
             </div>
+
             <div class="form-group">
-                <label for="petal_length">Длина лепестка (см):</label>
-                <input type="number" id="petal_length" step="0.1" value="1.4" required>
+                <label for="district">District:</label>
+                <select id="district" required>
+                    <!-- Options for districts 2 to 23 will be added by script.js -->
+                </select>
             </div>
-            <div class="form-group">
-                <label for="petal_width">Ширина лепестка (см):</label>
-                <input type="number" id="petal_width" step="0.1" value="0.2" required>
+
+            <div class="checkbox-group">
+                <label><input type="checkbox" id="has_balcony"> Has Balcony</label>
+                <label><input type="checkbox" id="has_terrace"> Has Terrace</label>
+                <label><input type="checkbox" id="is_furnished"> Is Furnished</label>
+                <label><input type="checkbox" id="is_social_housing"> Social Housing</label>
             </div>
-            <button type="submit">Предсказать вид</button>
+
+            <button type="submit">Calculate Price</button>
         </form>
 
         <div id="result-container">
-            Предсказанный вид: <span id="prediction-result">...</span>
+            Predicted Price: <span id="prediction-result">...</span> €/month
         </div>
     </div>
 
-    <!-- Подключаем наш файл со скриптами. Важно делать это в конце body! -->
     <script src="script.js"></script>
-
 </body>
 </html>
