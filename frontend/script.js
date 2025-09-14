@@ -1,9 +1,9 @@
 document.addEventListener('DOMContentLoaded', function() {
     const districtSelect = document.getElementById('district');
 
-    for (let i = 2; i <= 23; i++) {
+    for (let i = 1; i <= 23; i++) {
         const option = document.createElement('option');
-        const districtNumber = i.toString().padStart(2, '0'); // 2 -> "02"
+        const districtNumber = i.toString().padStart(2, '0');
         option.value = i;
         option.textContent = `district ${districtNumber}`;
         districtSelect.appendChild(option);
